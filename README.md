@@ -17,6 +17,9 @@ pip install -r requirements.txt
 # run streamlit
 streamlit run app.py
 
+# run jupyter notebook
+jupyter notebook --ip='*' --NotebookApp.token='' --NotebookApp.password=''
+
 ```
 
 ##  Original Repo - Just for Information Only

@@ -1,6 +1,8 @@
 {
   "files.exclude": {
     "**/__pycache__": true,
-    "myenv": true
-  }
+    "myenv": true,
+    "**/.ipynb_checkpoints": true
+  },
+  "python.defaultInterpreterPath": "/home/dhan/code/misc/streamlit_tutorial/myenv/bin/python"
 }
