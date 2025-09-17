@@ -9,18 +9,29 @@ st.title("MODIS_NASA")
 
 nasa_df = load_nasa_modis_images()
 
-st.dataframe(nasa_df[['start_date', 'filename']])
+# st.dataframe(nasa_df[['start_date', 'filename']])
+
+# st.write(nasa_df["start_date"])
+
+# Extract the year into a new Series
+years_only_df = nasa_df['start_date'].dt.year.unique()
 
 with st.sidebar:
     st.title("Yearly Images")
-    start_dates = st.selectbox("Select a year", nasa_df['start_date'].unique())
+    # st.write(nasa_df["start_date"])
+    start_dates = st.selectbox("Select a year", sorted(years_only_df))
+    # st.write(start_dates)
     # start, end = st.slider(
     #     "Range of commissioning years", 1900, 2022, (1900, 2022), step=1, help="Pick years!"
     # )
+# st.write(start_dates)
+# st.write(type(start_dates))
 
+filtered_df = nasa_df[nasa_df['start_date'].dt.year == start_dates]
 
-for image in nasa_df['image_plt']:
-    st.pyplot(image)
+with st.spinner("Generating Ocean Floor"):
+    for image in filtered_df['image_plt']:
+        st.pyplot(image)
 
 # st.table(nasa_images)
 

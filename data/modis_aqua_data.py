@@ -43,7 +43,7 @@ def load_nasa_modis_images():
     }
     return pd.DataFrame(data)
 
-def get_start_date_from_filename(filename: str) -> datetime.date | None:
+def get_start_date_from_filename(filename: str) -> datetime.date:
     """
     Extracts the start date from a filename with the format 
     'AQUA_MODIS.YYYYMMDD_YYYYMMDD.L3m...' and converts it to a date object.
@@ -64,10 +64,9 @@ def get_start_date_from_filename(filename: str) -> datetime.date | None:
         # The start date is the first part.
         start_date_str = date_range_part.split('_')[0]
 
-        st.write(start_date_str)
-        
         # Convert the 'YYYYMMDD' string to a datetime object and then to a date object.
         # start_date = datetime.strptime(start_date_str, "%Y%m%d").date()
+        # start_date = datetime.strptime(start_date_str, '%Y%m%d')
         start_date = datetime.strptime(start_date_str, '%Y%m%d')
         # st.write(start_date)
         
