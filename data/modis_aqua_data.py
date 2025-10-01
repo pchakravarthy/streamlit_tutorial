@@ -10,50 +10,49 @@ from datetime import datetime
 
 def get_image_data(full_path):
     dataset = xr.open_dataset(full_path)
-    array = np.log10(dataset["chlor_a"])
-    array.attrs.update(
-        {
-            "units": f'log10({dataset["chlor_a"].attrs["units"]})',
-        }
-    )
+    chlor_data = np.log10(dataset["chlor_a"])
+    chlor_data.attrs.update({"units": f'log10({dataset["chlor_a"].attrs["units"]})',})
     crs_proj = cartopy.crs.Robinson()
     crs_data = cartopy.crs.PlateCarree()
     fig = plt.figure(figsize=(10, 5))
     ax = fig.add_subplot(projection=crs_proj)
-    array.plot(x="lon", y="lat", cmap="jet", ax=ax, robust=True, transform=crs_data)
+    # img = chlor_data.plot(x="lon", y="lat", cmap="jet", ax=ax, robust=True, transform=crs_data)
     ax.coastlines()
     ax.set_title(dataset.attrs["product_name"])
-    return fig
+    return fig, chlor_data
 
 # @st.cache_data
 def load_nasa_modis_images():
     directory_path = "/Users/ashrayuddaraju/Documents/nasaspaceapps/streamlit_tutorial/nasa_data/MODIS_AQUA_L3m_CHL_8D_9km/2024"
+    nasa_df_pickle_path = "/Users/ashrayuddaraju/Documents/nasaspaceapps/streamlit_tutorial/nasa_data/nasa_df.pkl"
+    # serialize_df(directory_path, nasa_df_pickle_path)
+    # Restore the DataFrame from the file
+    restored_df = pd.read_pickle(nasa_df_pickle_path)
+    return restored_df
+
+def serialize_df(directory_path, file_path):
+    # Serialize the DataFrame to a file
     all_files = os.listdir(directory_path)
-    nasa_aqua_images = []
+    nasa_aqua_figures = []
+    nasa_aqua_img_data = []
     start_dates = []
     for file in all_files:
         full_path = os.path.join(directory_path, file)
         start_date = get_start_date_from_filename(file)
-        nasa_aqua_images.append(get_image_data(full_path))
+        fig, img = get_image_data(full_path)
+        nasa_aqua_figures.append(fig)
+        nasa_aqua_img_data.append(img)
         start_dates.append(start_date)
-    data = {
-        'filename': all_files,
-        'start_date': start_dates,
-        'image_plt' : nasa_aqua_images
-    }
-    return pd.DataFrame(data)
+    data = {'filename': all_files, 
+            'start_date': start_dates,
+            # 'image_plt' : nasa_aqua_figures,
+             'chlor_data': nasa_aqua_img_data}
+    df = pd.DataFrame(data)
+    df.to_pickle(file_path)
+    print(f"DataFrame serialized to {file_path}")
+
 
 def get_start_date_from_filename(filename: str) -> datetime.date:
-    """
-    Extracts the start date from a filename with the format 
-    'AQUA_MODIS.YYYYMMDD_YYYYMMDD.L3m...' and converts it to a date object.
-
-    Args:
-        filename (str): The name of the file.
-
-    Returns:
-        date: The start date as a date object, or None if the format is incorrect.
-    """
     try:
         # Split the filename by the dot separator.
         # The date range is expected to be the second element (index 1).
